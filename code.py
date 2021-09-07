@@ -7,9 +7,10 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
 header = st.container()
 dataset = st.container()
-features = st.container()
+# features = st.container()
 
 modelTraining = st.container()
+modelTesting= st.container()
 
 # Code executed once
 @st.cache
@@ -25,8 +26,8 @@ def train_reg(data):
 	Y = data['MEDV'].values.reshape(-1,1)
 	reg.fit(df_predictors, Y)
 
-	predictions = reg.predict(df_predictors)
-	return predictions
+	train_pred = reg.predict(df_predictors)
+	return reg, train_pred
 # write in header
 
 with header:
@@ -46,41 +47,43 @@ with dataset:
 
 
 
-with features:
-	st.header('Features')
+# with features:
+# 	st.header('Features')
 
 
 with modelTraining:
-	st.header('Model training and testing')
+	st.header('Model training results')
 
-	disp_col, test_col = st.columns(2)
+	# disp_col, test_col = st.columns(2)
 	# set_col	.slider('W')
 
 	Y = df['MEDV'].values.reshape(-1,1)
-	predictions = train_reg(df)
+	predictions = train_reg(df)[1]
 
-	disp_col.subheader('Mean absolute error of the model is: ')
-	disp_col.write(mean_absolute_error(Y, predictions))
+	st.subheader('Mean absolute error of the model is: ')
+	st.write(mean_absolute_error(Y, predictions))
 
-	disp_col.subheader('Mean squared error of the model is: ')
-	disp_col.write(mean_squared_error(Y, predictions))
+	st.subheader('Mean squared error of the model is: ')
+	st.write(mean_squared_error(Y, predictions))
 
-	disp_col.subheader('R squared score of the model is: ')
-	disp_col.write(r2_score(Y, predictions))
+	st.subheader('R squared score of the model is: ')
+	st.write(r2_score(Y, predictions))
 
-
+with modelTesting:
+	st.header('Predict')
 	# inserting predictors by user
-	test_col.subheader('Please fill in values according to each feature name')
+	st.subheader('Please fill in values according to each feature name')
 
-	test_col.write('NOX')
-	val_nox = test_col.number_input(label="NOX value",step=1.,format="%.2f")
+	st.write('NOX')
+	val_nox = st.number_input(label="NOX value",step=1.,format="%.2f")
 
-	test_col.write('INDUS')
-	val_indus = test_col.number_input(label="INDUS value",step=1.,format="%.2f")
+	st.write('INDUS')
+	val_indus = st.number_input(label="INDUS value",step=1.,format="%.2f")
 
-	test_col.write('ZN')
-	val_zn = test_col.number_input(label="ZN value",step=1.,format="%.2f")
+	st.write('ZN')
+	val_zn = st.number_input(label="ZN value",step=1.,format="%.2f")
 
 
-	test_col.subheader('Model prediction')
-	test_col.write(reg.predict(np.array([[val_nox, val_indus, val_zn]]))[0])
+	st.subheader('Model prediction')
+	st.write(train_reg(df)[0].predict(np.array([[val_nox, val_indus, val_zn]]))[0])
+
